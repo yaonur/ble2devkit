@@ -12,7 +12,7 @@ bool button_up_state = false;
 void setup()
 {
   // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial.begin(9600);
   BLEMidiServer.begin("espmcuMidi");
   // MIDI.begin(MIDI_CHANNEL_OFF);
   pinMode(c1, INPUT_PULLUP);
