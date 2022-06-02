@@ -47,6 +47,7 @@ void pc_button(int button, int message, int secondary)
 	else
 	{
 		send_bl_midi(message, 0);
+		c_state = 14;
 	}
 }
 
