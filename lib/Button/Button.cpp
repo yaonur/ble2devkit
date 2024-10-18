@@ -1,8 +1,9 @@
 #include "Button.h"
-
+#include <MIDI.h>
 int p_state = 14;
 int c_state = 14;
 int is_pushed = 0;
+
 
 bool read_button(int button)
 {
@@ -25,6 +26,7 @@ void process_button(int button, int message, int button_type, int mode, int seco
 			{
 				p_state = button;
 			}
+			MIDI.sendProgramChange(message-1, 1);
 		}
 		else
 		{
@@ -34,6 +36,7 @@ void process_button(int button, int message, int button_type, int mode, int seco
 			{
 				c_state = button;
 			}
+			MIDI.sendControlChange(convertMessage(message), 127, 1);
 		}
 	}
 }
@@ -64,22 +67,22 @@ void cc_button(int button, int message, int secondary)
 }
 void send_bl_midi(int message, int message_type)
 {
-	if (BLEMidiServer.isConnected() == 0)
-	{
-		debugln("Not connected");
-		debug("message was :");
-		debug(message);
-		if (message_type == 0)
-		{
-			debugln(" program change");
-		}
-		else
-		{
-			debugln(" control change");
-		}
-	}
-	else
-	{
+	// if (BLEMidiServer.isConnected() == 0)
+	// {
+	// 	debugln("Not connected");
+	// 	debug("message was :");
+	// 	debug(message);
+	// 	if (message_type == 0)
+	// 	{
+	// 		debugln(" program change");
+	// 	}
+	// 	else
+	// 	{
+	// 		debugln(" control change");
+	// 	}
+	// }
+	// else
+	// {
 
 		if (message_type == 0)
 		{
@@ -92,7 +95,34 @@ void send_bl_midi(int message, int message_type)
 			debugln("sendingcc");
 			debug(message);
 			BLEMidiServer.controlChange(1, message, 127);
+
 		}
+	// }
+}
+int convertMessage(int message)  {
+	if (message == 1)
+	{
+		return 75;
+	}
+	else if (message == 2)
+	{
+		return 76;
+	}
+	else if (message == 3)
+	{
+		return 77;
+	}
+	else if (message == 4)
+	{
+		return 84;
+	}
+	else if (message == 5)
+	{
+		return 85;
+	}
+	else
+	{
+		return 64;
 	}
 }
 
