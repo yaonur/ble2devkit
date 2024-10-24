@@ -4,6 +4,9 @@
 // #include <midi_Namespace.h>
 // #include <midi_Message.h>
 #include <BLEMidi.h>
+#include <MIDI.h>
+// MIDI_CREATE_DEFAULT_INSTANCE();
+extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI; 
 // #include <Arduino.h>
 
 #define DEBUG 0
@@ -23,3 +26,4 @@ void pc_button(int button, int pc, int seconday);
 void cc_button(int button, int message, int secondary);
 void send_bl_midi(int pc, int message_type = 0);
 void reset_button(int r1, int r2);
+int convertMessage(int message);

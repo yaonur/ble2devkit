@@ -8,13 +8,14 @@ int c4 = 25;
 int c5 = 33;
 bool button_up_state = false;
 
-// MIDI_CREATE_DEFAULT_INSTANCE();
+MIDI_CREATE_DEFAULT_INSTANCE();
 void setup()
 {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  // Serial.begin(31250);
+  // Serial.begin(115200);
   BLEMidiServer.begin("espmcuMidi");
-  // MIDI.begin(MIDI_CHANNEL_OFF);
+  MIDI.begin(MIDI_CHANNEL_OFF);
   pinMode(c1, INPUT_PULLUP);
   pinMode(c2, INPUT_PULLUP);
   pinMode(c3, INPUT_PULLUP);
@@ -60,4 +61,8 @@ void loop()
   {
     reset_button(r1,r2);
   }
+  // MIDI.sendProgramChange(0, 1); // Send program change 0 on channel 1
+  // delay(1500); // Wait for 1 second
+  // MIDI.sendProgramChange(1, 1); // Send program change 1 on channel 1
+  // delay(1500);
 }
