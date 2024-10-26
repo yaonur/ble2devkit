@@ -1,6 +1,6 @@
 #include <MIDI.h>
-#include <midi_Defs.h>
-#include <TimerOne.h>
+// #include <midi_Defs.h>
+// #include <TimerOne.h>
 int r1 = 5;
 int r2 = 4;
 int c1 = 14;
@@ -14,42 +14,42 @@ using namespace midi;
 // MidiType type = Clock;
 
 MIDI_CREATE_DEFAULT_INSTANCE();
-const unsigned long interval = 30000; // 500,000 microseconds = 500 milliseconds
-volatile bool sendClock = false;
+// const unsigned long interval = 30000; // 500,000 microseconds = 500 milliseconds
+// volatile bool sendClock = false;
 
-void sendMidiClock()
-{
-  if (sendClock)
-  {
-    MIDI.sendClock();
-    // Serial.print("clock");
-  }
-}
-bool ledState = false;
-void toggleLED()
-{
-  ledState = !ledState;
-  digitalWrite(22, ledState);
-  // MIDI.sendClock();
-   if (sendClock)
-  {
-    MIDI.sendClock();
-    // Serial.print("clock");
-  }
-}
-void sendBPM(int bpm)
-{
-  byte sysexMessage[] = {
-    0xF0,       // Start of SysEx
-    0x7F,       // Real-Time Universal SysEx ID
-    0x7F,       // Device ID (7F = all devices)
-    0x03,       // Sub-ID #1 (MIDI Time Code)
-    0x01,       // Sub-ID #2 (Full Message)
-    (byte)bpm,  // BPM value
-    0xF7        // End of SysEx
-  };
-  MIDI.sendSysEx(sizeof(sysexMessage), sysexMessage, true);
-}
+// void sendMidiClock()
+// {
+//   if (sendClock)
+//   {
+//     MIDI.sendClock();
+//     // Serial.print("clock");
+//   }
+// }
+// bool ledState = false;
+// void toggleLED()
+// {
+//   ledState = !ledState;
+//   digitalWrite(22, ledState);
+//   // MIDI.sendClock();
+//    if (sendClock)
+//   {
+//     MIDI.sendClock();
+//     // Serial.print("clock");
+//   }
+// }
+// void sendBPM(int bpm)
+// {
+//   byte sysexMessage[] = {
+//     0xF0,       // Start of SysEx
+//     0x7F,       // Real-Time Universal SysEx ID
+//     0x7F,       // Device ID (7F = all devices)
+//     0x03,       // Sub-ID #1 (MIDI Time Code)
+//     0x01,       // Sub-ID #2 (Full Message)
+//     (byte)bpm,  // BPM value
+//     0xF7        // End of SysEx
+//   };
+//   MIDI.sendSysEx(sizeof(sysexMessage), sysexMessage, true);
+// }
 void setup()
 {
   MIDI.begin(MIDI_CHANNEL_OFF);
@@ -65,7 +65,7 @@ void setup()
   // Timer1.attachInterrupt(toggleLED);
   // Timer1.attachInterrupt(sendMidiClock);
   // sendClock = true;
-  sendBPM(120);
+  // sendBPM(120);
 }
 bool read_button(int button)
 {
