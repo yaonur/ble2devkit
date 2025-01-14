@@ -23,13 +23,9 @@ void toggleLED()
 {
   ledState = !ledState;
   digitalWrite(22, ledState);
-  // MIDI.sendClock();
-   if (sendClock)
-  {
-    MIDI.sendClock();
-    // Serial.print("clock");
-  }
+  
 }
+
 void setup()
 {
   MIDI.begin(MIDI_CHANNEL_OFF);
