@@ -56,8 +56,6 @@ int convertMessage(int message)
 
 void setup()
 {
-  // put your setup code here, to run once:
-  // Serial2.begin(31250, SERIAL_8N1, -1, 17);
   MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
   Serial1.begin(31250);
   Serial.begin(9600);
@@ -92,7 +90,7 @@ void process_button(int button, int message, int mode)
     }
     else
     {
-        // MIDI.sendControlChange(convertMessage(message), 127, 1);
+      controlChange(convertMessage(message), 127);
     }
   }
 }
