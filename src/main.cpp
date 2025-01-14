@@ -1,44 +1,24 @@
 #include <MIDI.h>
-#include <midi_Defs.h>
-#include <TimerOne.h>
-int r1 = 5;
-int r2 = 4;
-int c1 = 14;
-int c2 = 27;
-int c3 = 26;
-int c4 = 25;
-int c5 = 33;
+#include <MIDIUSB.h>
+#define DEBUG 1
+
+#if DEBUG == 1
+#define debug(x) Serial.print(x)
+#define debugln(x) Serial.println(x)
+#else
+#define debug(x)
+#define debugln(x)
+#endif
+int r1 = 25;
+int r2 = 27;
+int c1 = 36;
+int c2 = 37;
+int c3 = 38;
 int is_pushed = 0;
 bool mode_alt = true;
-using namespace midi;
-// MidiType type = Clock;
 
+// MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 MIDI_CREATE_DEFAULT_INSTANCE();
-const unsigned long interval = 30000; // 500,000 microseconds = 500 milliseconds
-volatile bool sendClock = false;
-
-
-bool ledState = false;
-void toggleLED()
-{
-  ledState = !ledState;
-  digitalWrite(22, ledState);
-  
-}
-
-void setup()
-{
-  MIDI.begin(MIDI_CHANNEL_OFF);
-  pinMode(c1, INPUT_PULLUP);
-  pinMode(c2, INPUT_PULLUP);
-  pinMode(c3, INPUT_PULLUP);
-  pinMode(c4, INPUT_PULLUP);
-  pinMode(c5, INPUT_PULLUP);
-  pinMode(r1, INPUT_PULLUP);
-  pinMode(r2, INPUT_PULLUP);
-  pinMode(22, OUTPUT);
- 
-}
 bool read_button(int button)
 {
   if (digitalRead(button) == LOW)
@@ -74,7 +54,33 @@ int convertMessage(int message)
   }
 }
 
+void setup()
+{
+  // put your setup code here, to run once:
+  // Serial2.begin(31250, SERIAL_8N1, -1, 17);
+  MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
+  Serial1.begin(31250);
+  Serial.begin(9600);
+  pinMode(c1, INPUT_PULLUP);
+  pinMode(c2, INPUT_PULLUP);
+  pinMode(c3, INPUT_PULLUP);
 
+  pinMode(r1, INPUT_PULLUP);
+  pinMode(r2, INPUT_PULLUP);
+
+  pinMode(13, OUTPUT);
+}
+
+void controlChange(byte control, byte value)
+{
+  midiEventPacket_t event = {0x0B, 0xB0, control, value};
+  MidiUSB.sendMIDI(event);
+}
+void programChange(byte pc)
+{
+  midiEventPacket_t event = {0x0C, 0xC0, pc, 0x00};
+  MidiUSB.sendMIDI(event);
+}
 void process_button(int button, int message, int mode)
 {
   if (is_pushed == 0 && read_button(button))
@@ -82,83 +88,44 @@ void process_button(int button, int message, int mode)
     is_pushed = button;
     if (mode == 0)
     {
-      if (message == 5)
-      {
-        mode_alt = !mode_alt;
-        return;
-      }
-      if (mode_alt)
-      {
-
-        MIDI.sendProgramChange(message - 1, 1);
-      }
-      else
-      {
-        MIDI.sendProgramChange(message + 3, 1);
-      }
+      programChange(message - 1);
     }
     else
     {
-      if (message == 5)
-      {
-          MIDI.sendControlChange(64, 127, 1);
-          delay(30);
-          MIDI.sendControlChange(64, 0, 1);
-      }
-      else
-      {
-          MIDI.sendControlChange(convertMessage(message), 127, 1);
-      }
-        }
+        // MIDI.sendControlChange(convertMessage(message), 127, 1);
+    }
   }
 }
-void reset_button(int r1, int r2)
-{
-  if (is_pushed == 0)
-  {
-    return;
-  }
-  delay(100);
-  if (digitalRead(r1) == HIGH && digitalRead(r2) == HIGH)
-  {
-    is_pushed = 0;
-  }
-}
-
-
 void loop()
 {
-  
-  if (mode_alt)
-  {
-
-    digitalWrite(22, HIGH);
-  }
-  else
-  {
-    digitalWrite(22, LOW);
-  }
-
   if (digitalRead(r1) == LOW)
   {
     process_button(c1, 1, 0);
     process_button(c2, 2, 0);
     process_button(c3, 3, 0);
-    process_button(c4, 4, 0);
-    process_button(c5, 5, 0);
     delay(3);
   }
   else if (digitalRead(r2) == LOW)
   {
-    process_button(c1, 1, 1);
-    process_button(c2, 2, 1);
-    process_button(c3, 3, 1);
-    process_button(c4, 4, 1);
-    process_button(c5, 5, 1);
+    process_button(c1, 4, 0);
+    process_button(c2, 5, 0);
+    process_button(c3, 6, 0);
     delay(3);
   }
-  else if (digitalRead(r1) == HIGH && digitalRead(r2) == HIGH)
-  {
-    reset_button(r1, r2);
-  }
+  // Send MIDI over Serial
+  // debugln("loop");
+  // // MIDI.sendProgramChange(0, 1);
+  // controlChange(75,127);
+  // programChange(0);
+  // MidiUSB.flush();
+  // delay(1500);
+  // // MIDI.sendProgramChange(1, 1);
+  // // controlChange(76,127);
+  // programChange(1);
+  // MidiUSB.flush();
+  // delay(1500);
+  // // controlChange(77,127);
+  // programChange(2);
+  // MidiUSB.flush();
+  // delay(1500);
 }
