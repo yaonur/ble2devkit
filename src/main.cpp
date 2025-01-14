@@ -17,14 +17,7 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 const unsigned long interval = 30000; // 500,000 microseconds = 500 milliseconds
 volatile bool sendClock = false;
 
-void sendMidiClock()
-{
-  if (sendClock)
-  {
-    MIDI.sendClock();
-    // Serial.print("clock");
-  }
-}
+
 bool ledState = false;
 void toggleLED()
 {
@@ -37,19 +30,6 @@ void toggleLED()
     // Serial.print("clock");
   }
 }
-void sendBPM(int bpm)
-{
-  byte sysexMessage[] = {
-    0xF0,       // Start of SysEx
-    0x7F,       // Real-Time Universal SysEx ID
-    0x7F,       // Device ID (7F = all devices)
-    0x03,       // Sub-ID #1 (MIDI Time Code)
-    0x01,       // Sub-ID #2 (Full Message)
-    (byte)bpm,  // BPM value
-    0xF7        // End of SysEx
-  };
-  MIDI.sendSysEx(sizeof(sysexMessage), sysexMessage, true);
-}
 void setup()
 {
   MIDI.begin(MIDI_CHANNEL_OFF);
@@ -61,11 +41,7 @@ void setup()
   pinMode(r1, INPUT_PULLUP);
   pinMode(r2, INPUT_PULLUP);
   pinMode(22, OUTPUT);
-  // Timer1.initialize(interval);
-  // Timer1.attachInterrupt(toggleLED);
-  // Timer1.attachInterrupt(sendMidiClock);
-  // sendClock = true;
-  sendBPM(120);
+ 
 }
 bool read_button(int button)
 {
@@ -153,22 +129,10 @@ void reset_button(int r1, int r2)
   }
 }
 
-// long bpm = 120.0;
-// long tempo = 1000.0 / (bpm / 60.0);
 
-// float prevmillis = 0;
-// float interval = tempo / 24.0;
-// bool ledState = false;
 void loop()
 {
-  // unsigned long currentMillis = millis();
-  // if (currentMillis - prevmillis >= interval) {
-  //   //save the last time.
-  //   prevmillis = currentMillis;
-  //   MIDI.sendClock();
-  //   digitalWrite(22, ledState);
-  //   ledState = !ledState;
-  // }
+  
   if (mode_alt)
   {
 
