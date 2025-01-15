@@ -14,7 +14,8 @@ int r2 = 3;
 int c1 = 4;
 int c2 = 5;
 int c3 = 6;
-int is_pushed = 0;
+int is_pushed = false;
+int pushed_button = 0;
 bool mode_alt = true;
 
 // MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
@@ -65,6 +66,8 @@ void setup()
 
   pinMode(r1, OUTPUT);
   pinMode(r2, OUTPUT);
+  digitalWrite(r1, HIGH);
+  digitalWrite(r2, HIGH);
 
   pinMode(13, OUTPUT);
 }
@@ -81,41 +84,46 @@ void programChange(byte pc)
 }
 void process_button(int button, int message, int mode)
 {
-  if (is_pushed == 0 && read_button(button))
+  if (pushed_button !=button+message && read_button(button))
   {
+    is_pushed = true;
     debugln("Button Pressed");
     debugln(button);
-    is_pushed = button;
+    debugln(message);
+    pushed_button = button+message;
     if (mode == 0)
     {
+      debugln("sending program change");
+      debugln(message - 1);
       programChange(message - 1);
     }
     else
     {
       controlChange(convertMessage(message), 127);
     }
+    MidiUSB.flush();
+  } else if (pushed_button == button+message && read_button(button)==false){
+    pushed_button = 0;
   }
 }
 void loop()
 {
   
-  delay(500);
-  // if (digitalRead(r1) == LOW)
-  // {
-    digitalWrite(r1, LOW);
+    delay(80);
+    digitalWrite(r1,LOW);
     process_button(c1, 1, 0);
     process_button(c2, 2, 0);
     process_button(c3, 3, 0);
     delay(3);
-    digitalWrite(r1, HIGH);
-  // }
-  // else if (digitalRead(r2) == LOW)
-  // {
-  //   process_button(c1, 4, 0);
-  //   process_button(c2, 5, 0);
-  //   process_button(c3, 6, 0);
-  //   delay(3);
-  // }
+    digitalWrite(r1,HIGH);
+  
+    digitalWrite(r2,LOW);
+    process_button(c1, 4, 0);
+    process_button(c2, 5, 0);
+    process_button(c3, 6, 0);
+    delay(3);
+    digitalWrite(r2,HIGH);
+
   // Send MIDI over Serial
   // debugln("loop");
   // // MIDI.sendProgramChange(0, 1);
