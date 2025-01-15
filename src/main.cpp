@@ -9,11 +9,11 @@
 #define debug(x)
 #define debugln(x)
 #endif
-int r1 = 25;
-int r2 = 27;
-int c1 = 36;
-int c2 = 37;
-int c3 = 38;
+int r1 = 2;
+int r2 = 3;
+int c1 = 4;
+int c2 = 5;
+int c3 = 6;
 int is_pushed = 0;
 bool mode_alt = true;
 
@@ -63,8 +63,8 @@ void setup()
   pinMode(c2, INPUT_PULLUP);
   pinMode(c3, INPUT_PULLUP);
 
-  pinMode(r1, INPUT_PULLUP);
-  pinMode(r2, INPUT_PULLUP);
+  pinMode(r1, OUTPUT);
+  pinMode(r2, OUTPUT);
 
   pinMode(13, OUTPUT);
 }
@@ -83,6 +83,8 @@ void process_button(int button, int message, int mode)
 {
   if (is_pushed == 0 && read_button(button))
   {
+    debugln("Button Pressed");
+    debugln(button);
     is_pushed = button;
     if (mode == 0)
     {
@@ -96,20 +98,24 @@ void process_button(int button, int message, int mode)
 }
 void loop()
 {
-  if (digitalRead(r1) == LOW)
-  {
+  
+  delay(500);
+  // if (digitalRead(r1) == LOW)
+  // {
+    digitalWrite(r1, LOW);
     process_button(c1, 1, 0);
     process_button(c2, 2, 0);
     process_button(c3, 3, 0);
     delay(3);
-  }
-  else if (digitalRead(r2) == LOW)
-  {
-    process_button(c1, 4, 0);
-    process_button(c2, 5, 0);
-    process_button(c3, 6, 0);
-    delay(3);
-  }
+    digitalWrite(r1, HIGH);
+  // }
+  // else if (digitalRead(r2) == LOW)
+  // {
+  //   process_button(c1, 4, 0);
+  //   process_button(c2, 5, 0);
+  //   process_button(c3, 6, 0);
+  //   delay(3);
+  // }
   // Send MIDI over Serial
   // debugln("loop");
   // // MIDI.sendProgramChange(0, 1);
