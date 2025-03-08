@@ -9,7 +9,7 @@
 #define debug(x)
 #define debugln(x)
 #endif
-int r1 = 2;
+int r1 = 21;
 int r2 = 3;
 int c1 = 4;
 int c2 = 5;
@@ -106,38 +106,10 @@ void process_button(int button, int message, int mode)
     pushed_button = 0;
   }
 }
+int distance = 0;
 void loop()
 {
-  
-    delay(80);
-    digitalWrite(r1,LOW);
-    process_button(c1, 1, 0);
-    process_button(c2, 2, 0);
-    process_button(c3, 3, 0);
-    delay(3);
-    digitalWrite(r1,HIGH);
-  
-    digitalWrite(r2,LOW);
-    process_button(c1, 4, 0);
-    process_button(c2, 5, 0);
-    process_button(c3, 6, 0);
-    delay(3);
-    digitalWrite(r2,HIGH);
-
-  // Send MIDI over Serial
-  // debugln("loop");
-  // // MIDI.sendProgramChange(0, 1);
-  // controlChange(75,127);
-  // programChange(0);
-  // MidiUSB.flush();
-  // delay(1500);
-  // // MIDI.sendProgramChange(1, 1);
-  // // controlChange(76,127);
-  // programChange(1);
-  // MidiUSB.flush();
-  // delay(1500);
-  // // controlChange(77,127);
-  // programChange(2);
-  // MidiUSB.flush();
-  // delay(1500);
+  distance = analogRead(r1);
+  debugln(distance);
+  delay(100);
 }
