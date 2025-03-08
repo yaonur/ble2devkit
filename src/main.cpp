@@ -1,8 +1,8 @@
-#include <MIDI.h>
+// #include <MIDI.h>
 #include <MIDIUSB.h>
 #define DEBUG 1
 
-#if DEBUG == 1
+#if DEBUG == 0
 #define debug(x) Serial.print(x)
 #define debugln(x) Serial.println(x)
 #else
@@ -10,66 +10,20 @@
 #define debugln(x)
 #endif
 int r1 = 21;
-int r2 = 3;
-int c1 = 4;
-int c2 = 5;
-int c3 = 6;
+
 int is_pushed = false;
-int pushed_button = 0;
-bool mode_alt = true;
 
 // MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
-MIDI_CREATE_DEFAULT_INSTANCE();
-bool read_button(int button)
-{
-  if (digitalRead(button) == LOW)
-    return true;
-  else
-    return false;
-}
-int convertMessage(int message)
-{
-  if (message == 1)
-  {
-    return 75;
-  }
-  else if (message == 2)
-  {
-    return 76;
-  }
-  else if (message == 3)
-  {
-    return 77;
-  }
-  else if (message == 4)
-  {
-    return 84;
-  }
-  else if (message == 5)
-  {
-    return 64;
-  }
-  else
-  {
-    return 64;
-  }
-}
+// MIDI_CREATE_DEFAULT_INSTANCE();
 
 void setup()
 {
-  MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
-  Serial1.begin(31250);
-  Serial.begin(9600);
-  pinMode(c1, INPUT_PULLUP);
-  pinMode(c2, INPUT_PULLUP);
-  pinMode(c3, INPUT_PULLUP);
+  // MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
+  // Serial1.begin(31250);
+  // Serial.begin(9600);
 
-  pinMode(r1, OUTPUT);
-  pinMode(r2, OUTPUT);
-  digitalWrite(r1, HIGH);
-  digitalWrite(r2, HIGH);
+  pinMode(r1, INPUT);
 
-  pinMode(13, OUTPUT);
 }
 
 void controlChange(byte control, byte value)
@@ -82,34 +36,24 @@ void programChange(byte pc)
   midiEventPacket_t event = {0x0C, 0xC0, pc, 0x00};
   MidiUSB.sendMIDI(event);
 }
-void process_button(int button, int message, int mode)
-{
-  if (pushed_button !=button+message && read_button(button))
-  {
-    is_pushed = true;
-    debugln("Button Pressed");
-    debugln(button);
-    debugln(message);
-    pushed_button = button+message;
-    if (mode == 0)
-    {
-      debugln("sending program change");
-      debugln(message - 1);
-      programChange(message - 1);
-    }
-    else
-    {
-      controlChange(convertMessage(message), 127);
-    }
-    MidiUSB.flush();
-  } else if (pushed_button == button+message && read_button(button)==false){
-    pushed_button = 0;
-  }
-}
 int distance = 0;
 void loop()
 {
-  distance = analogRead(r1);
-  debugln(distance);
-  delay(100);
+  // distance = analogRead(r1);
+  // if (distance < 100)
+  // {
+  //   if (is_pushed == false)
+  //   {
+  //     controlChange(75, 127);
+  //     is_pushed = true;
+  //   }
+  // }
+  // else if (distance > 700)
+  // {
+  //   is_pushed = false;
+  // }
+  controlChange(37, 127);
+  delay(1000);
+  controlChange(38, 127);
+  delay(1000);
 }
