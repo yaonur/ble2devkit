@@ -11,7 +11,6 @@ bool button_up_state = false;
 MIDI_CREATE_DEFAULT_INSTANCE();
 void setup()
 {
-  // put your setup code here, to run once:
   // Serial.begin(31250);
   // Serial.begin(115200);
   BLEMidiServer.begin("espmcuMidi");
