@@ -17,9 +17,9 @@ int c3 = 6;
 int is_pushed = false;
 int pushed_button = 0;
 bool mode_alt = true;
+byte midi_channel = 1; // Change this if Plethora X3 uses different channel (1-16)
 
-// MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
-MIDI_CREATE_DEFAULT_INSTANCE();
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 bool read_button(int button)
 {
   if (digitalRead(button) == LOW)
@@ -39,15 +39,15 @@ int convertMessage(int message)
   }
   else if (message == 3)
   {
-    return 77;
+    return 94;
   }
   else if (message == 4)
   {
-    return 84;
+    return 95;
   }
   else if (message == 5)
   {
-    return 64;
+    return 95;
   }
   else
   {
@@ -57,9 +57,17 @@ int convertMessage(int message)
 
 void setup()
 {
-  MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
-  Serial1.begin(31250);
   Serial.begin(9600);
+  delay(1000); // Wait for serial to initialize
+  debugln("Starting MIDI setup...");
+  
+  Serial1.begin(31250); // Standard MIDI baud rate
+  MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
+  
+  debugln("Serial1 initialized at 31250 baud");
+  debug("Using MIDI channel: ");
+  debugln(midi_channel);
+  
   pinMode(c1, INPUT_PULLUP);
   pinMode(c2, INPUT_PULLUP);
   pinMode(c3, INPUT_PULLUP);
@@ -70,17 +78,43 @@ void setup()
   digitalWrite(r2, HIGH);
 
   pinMode(13, OUTPUT);
+  
+  debugln("Setup complete!");
 }
 
 void controlChange(byte control, byte value)
 {
-  midiEventPacket_t event = {0x0B, 0xB0, control, value};
+  debug("Sending CC: ");
+  debug(control);
+  debug(" Value: ");
+  debug(value);
+  debug(" Channel: ");
+  debugln(midi_channel);
+  
+  // Send via USB MIDI
+  midiEventPacket_t event = {0x0B, 0xB0 | (midi_channel - 1), control, value};
   MidiUSB.sendMIDI(event);
+  MidiUSB.flush();
+  
+  // Send via hardware serial MIDI
+  MIDI.sendControlChange(control, value, midi_channel);
+  debugln("CC sent via Serial1");
 }
 void programChange(byte pc)
 {
-  midiEventPacket_t event = {0x0C, 0xC0, pc, 0x00};
+  debug("Sending PC: ");
+  debug(pc);
+  debug(" Channel: ");
+  debugln(midi_channel);
+  
+  // Send via USB MIDI
+  midiEventPacket_t event = {0x0C, 0xC0 | (midi_channel - 1), pc, 0x00};
   MidiUSB.sendMIDI(event);
+  MidiUSB.flush();
+  
+  // Send via hardware serial MIDI
+  MIDI.sendProgramChange(pc, midi_channel);
+  debugln("PC sent via Serial1");
 }
 void process_button(int button, int message, int mode)
 {
@@ -99,9 +133,10 @@ void process_button(int button, int message, int mode)
     }
     else
     {
+      debugln("sending control change");
+      debugln(convertMessage(message));
       controlChange(convertMessage(message), 127);
     }
-    MidiUSB.flush();
   } else if (pushed_button == button+message && read_button(button)==false){
     pushed_button = 0;
   }
@@ -118,26 +153,30 @@ void loop()
     digitalWrite(r1,HIGH);
   
     digitalWrite(r2,LOW);
-    process_button(c1, 4, 0);
-    process_button(c2, 5, 0);
-    process_button(c3, 6, 0);
+    process_button(c1, 4, 1);
+    process_button(c2, 5, 1);
+    process_button(c3, 6, 1);
     delay(3);
     digitalWrite(r2,HIGH);
 
-  // Send MIDI over Serial
-  // debugln("loop");
-  // // MIDI.sendProgramChange(0, 1);
-  // controlChange(75,127);
+  // Test MIDI messages
+  // debugln("=== Test Loop ===");
+  
+  // // Test Program Change
+  // debugln("Testing Program Change 0...");
   // programChange(0);
-  // MidiUSB.flush();
-  // delay(1500);
-  // // MIDI.sendProgramChange(1, 1);
-  // // controlChange(76,127);
+  // delay(1000);
+  
+  // // Test Control Change (CC 94 is mentioned for Plethora X3)
+  // debugln("Testing Control Change 94...");
+  // controlChange(94, 127);
+  // delay(1000);
+  
+  // // Test another Program Change
+  // debugln("Testing Program Change 1...");
   // programChange(1);
-  // MidiUSB.flush();
-  // delay(1500);
-  // // controlChange(77,127);
-  // programChange(2);
-  // MidiUSB.flush();
-  // delay(1500);
+  // delay(1000);
+  
+  // debugln("--- End Test Loop ---");
+  // delay(2000);
 }
