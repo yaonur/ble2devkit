@@ -11,9 +11,9 @@
 #endif
 int r1 = 2;
 int r2 = 3;
-int c1 = 4;
+int c1 = 6;
 int c2 = 5;
-int c3 = 6;
+int c3 = 4;
 int is_pushed = false;
 int pushed_button = 0;
 bool mode_alt = true;
@@ -47,11 +47,11 @@ int convertMessage(int message)
   }
   else if (message == 5)
   {
-    return 95;
+    return 92;
   }
   else
   {
-    return 64;
+    return 92;
   }
 }
 
@@ -146,36 +146,38 @@ void loop()
   
     delay(80);
     digitalWrite(r1,LOW);
-    process_button(c1, 1, 0);
-    process_button(c2, 2, 0);
-    process_button(c3, 3, 0);
+    process_button(c1, 2, 0);
+    process_button(c2, 3, 0);
+    process_button(c3, 7, 1);
     delay(3);
     digitalWrite(r1,HIGH);
   
     digitalWrite(r2,LOW);
-    process_button(c1, 4, 1);
-    process_button(c2, 5, 1);
-    process_button(c3, 6, 1);
+    process_button(c1, 4, 0);
+    process_button(c2, 5, 0);
+    process_button(c3, 6, 0);
     delay(3);
     digitalWrite(r2,HIGH);
 
   // Test MIDI messages
   // debugln("=== Test Loop ===");
   
-  // // Test Program Change
+  // Test Program Change
   // debugln("Testing Program Change 0...");
   // programChange(0);
-  // delay(1000);
+  // delay(800);
   
-  // // Test Control Change (CC 94 is mentioned for Plethora X3)
+  // Test Control Change (CC 94 is mentioned for Plethora X3)
   // debugln("Testing Control Change 94...");
   // controlChange(94, 127);
   // delay(1000);
+
+
   
-  // // Test another Program Change
+  // Test another Program Change
   // debugln("Testing Program Change 1...");
   // programChange(1);
-  // delay(1000);
+  // delay(800);
   
   // debugln("--- End Test Loop ---");
   // delay(2000);
