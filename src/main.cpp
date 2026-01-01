@@ -100,23 +100,23 @@ void controlChange(byte control, byte value)
   MIDI.sendControlChange(control, value, midi_channel);
   debugln("CC sent via Serial1");
 }
-void programChange(byte pc)
+void programChange(byte pc, byte channel = midi_channel)
 {
   debug("Sending PC: ");
   debug(pc);
   debug(" Channel: ");
-  debugln(midi_channel);
+  debugln(channel);
   
   // Send via USB MIDI
-  midiEventPacket_t event = {0x0C, 0xC0 | (midi_channel - 1), pc, 0x00};
+  midiEventPacket_t event = {0x0C, 0xC0 | (channel - 1), pc, 0x00};
   MidiUSB.sendMIDI(event);
   MidiUSB.flush();
   
   // Send via hardware serial MIDI
-  MIDI.sendProgramChange(pc, midi_channel);
+  MIDI.sendProgramChange(pc, channel);
   debugln("PC sent via Serial1");
 }
-void process_button(int button, int message, int mode)
+void process_button(int button, int message, int mode, byte channel = midi_channel)
 {
   if (pushed_button !=button+message && read_button(button))
   {
@@ -129,7 +129,7 @@ void process_button(int button, int message, int mode)
     {
       debugln("sending program change");
       debugln(message - 1);
-      programChange(message - 1);
+      programChange(message - 1, channel);
     }
     else
     {
@@ -153,9 +153,9 @@ void loop()
     digitalWrite(r1,HIGH);
   
     digitalWrite(r2,LOW);
-    process_button(c1, 4, 0);
-    process_button(c2, 5, 0);
-    process_button(c3, 6, 0);
+    process_button(c1, 4, 0, 2);
+    process_button(c2, 5, 0, 2);
+    process_button(c3, 6, 0, 2);
     delay(3);
     digitalWrite(r2,HIGH);
 
