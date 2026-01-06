@@ -1,5 +1,5 @@
 #include <MIDI.h>
-#include <MIDIUSB.h>
+#include <Adafruit_TinyUSB.h>
 #define DEBUG 0
 
 #if DEBUG == 1
@@ -20,6 +20,11 @@ bool mode_alt = true;
 byte midi_channel = 1; // Change this if Plethora X3 uses different channel (1-16)
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
+
+// USB MIDI instance using TinyUSB
+Adafruit_USBD_MIDI usb_midi;
+// Create MIDI instance over USB
+MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, USB_MIDI);
 bool read_button(int button)
 {
   if (digitalRead(button) == LOW)
@@ -61,9 +66,14 @@ void setup()
   delay(1000); // Wait for serial to initialize
   debugln("Starting MIDI setup...");
   
+  // Initialize USB MIDI
+  usb_midi.begin();
+  USB_MIDI.begin(MIDI_CHANNEL_OFF);
+  
   Serial1.begin(31250); // Standard MIDI baud rate
   MIDI.begin(MIDI_CHANNEL_OFF); // Initialize MIDI, but don't listen to any channel
   
+  debugln("USB MIDI initialized");
   debugln("Serial1 initialized at 31250 baud");
   debug("Using MIDI channel: ");
   debugln(midi_channel);
@@ -92,9 +102,7 @@ void controlChange(byte control, byte value)
   debugln(midi_channel);
   
   // Send via USB MIDI
-  midiEventPacket_t event = {0x0B, 0xB0 | (midi_channel - 1), control, value};
-  MidiUSB.sendMIDI(event);
-  MidiUSB.flush();
+  USB_MIDI.sendControlChange(control, value, midi_channel);
   
   // Send via hardware serial MIDI
   MIDI.sendControlChange(control, value, midi_channel);
@@ -108,9 +116,7 @@ void programChange(byte pc, byte channel = midi_channel)
   debugln(channel);
   
   // Send via USB MIDI
-  midiEventPacket_t event = {0x0C, 0xC0 | (channel - 1), pc, 0x00};
-  MidiUSB.sendMIDI(event);
-  MidiUSB.flush();
+  USB_MIDI.sendProgramChange(pc, channel);
   
   // Send via hardware serial MIDI
   MIDI.sendProgramChange(pc, channel);
@@ -160,25 +166,25 @@ void loop()
     digitalWrite(r2,HIGH);
 
   // Test MIDI messages
-  // debugln("=== Test Loop ===");
+  debugln("=== Test Loop ===");
   
   // Test Program Change
-  // debugln("Testing Program Change 0...");
-  // programChange(0);
-  // delay(800);
+  debugln("Testing Program Change 0...");
+  programChange(0);
+  delay(800);
   
   // Test Control Change (CC 94 is mentioned for Plethora X3)
-  // debugln("Testing Control Change 94...");
-  // controlChange(94, 127);
-  // delay(1000);
+  debugln("Testing Control Change 94...");
+  controlChange(94, 127);
+  delay(1000);
 
 
   
   // Test another Program Change
-  // debugln("Testing Program Change 1...");
-  // programChange(1);
-  // delay(800);
+  debugln("Testing Program Change 1...");
+  programChange(1);
+  delay(800);
   
-  // debugln("--- End Test Loop ---");
+  debugln("--- End Test Loop ---");
   // delay(2000);
 }
